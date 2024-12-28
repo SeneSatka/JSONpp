@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/mnt/storage/projects/cpp/JSON++/build",
+  "command": "/usr/bin/c++   -g -o CMakeFiles/JSON++.dir/JSON++.cpp.o -c /mnt/storage/projects/cpp/JSON++/JSON++.cpp",
+  "file": "/mnt/storage/projects/cpp/JSON++/JSON++.cpp",
+  "output": "CMakeFiles/JSON++.dir/JSON++.cpp.o"
+}
+]
