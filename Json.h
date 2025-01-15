@@ -1,94 +1,129 @@
-#include <map>
+#include <unordered_map>
 #include <iostream>
 #include "utils.h"
-using std::map, std::string;
+using namespace std;
 class Json
 {
 public:
-    Json() {}
-    string stringfy() {}
-    void parse(string text)
+    Json(const string &text)
     {
-        string part = "";
-        string key = "";
-        string value = "";
-        for (int i = 0; i < text.length(); i++)
+        parse(text);
+    }
+
+    Json() = default;
+    string stringify() const
+    {
+        string result = "{";
+        for (const auto &it : charData)
+        {
+            result += "\"" + it.first + "\":\"" + it.second + "\",";
+        }
+        for (const auto &it : intData)
+        {
+            result += "\"" + it.first + "\":" + to_string(it.second) + ",";
+        }
+        for (const auto &it : floatData)
+        {
+            result += "\"" + it.first + "\":" + to_string(it.second) + ",";
+        }
+        for (const auto &it : boolData)
+        {
+            result += "\"" + it.first + "\":" + (it.second ? "true" : "false") + ",";
+        }
+        if (result.back() == ',')
+        {
+            result.pop_back();
+        }
+        result += "}";
+        return result;
+    }
+
+    void parse(const string &text)
+    {
+        string part, key, value;
+        for (size_t i = 0; i < text.length(); ++i)
         {
             if (text[i] != ',' && text[i] != '}' && text[i] != '{')
+            {
                 part += text[i];
+            }
             else if (text[i] == ',' || text[i] == '}')
             {
-                for (int j = 0; j < part.length(); j++)
+                size_t pos = part.find(':');
+                if (pos != string::npos)
                 {
-                    if (part[j] == ':')
+                    key = part.substr(1, pos - 2);
+                    value = part.substr(pos + 1);
+                    if (is_number(value))
                     {
-                        key = part.substr(1, j - 2);
-                        value = part.substr(j + 1, (part.length()));
-                        break;
+                        set(key, stoi(value));
+                    }
+                    else if (is_bool(value))
+                    {
+                        set(key, value == "true");
+                    }
+                    else
+                    {
+                        value = value.substr(1, value.length() - 2);
+                        set(key, value);
                     }
                 }
-                if (is_number(value))
-                {
-                    // set(key.c_str(), stoi(value));
-                }
-                else if (is_bool(value))
-                {
-                    // set(key.data(), value == "true");
-                }
-                else
-                {
-                    value = value.substr(1, value.length() - 2);
-                    std::cout << value << std::endl;
-                    set(key.data(), value.c_str());
-                }
-                // std::cout << part << std::endl;
-                // std::cout << key << ":" << value << std::endl;
-
-                part = "";
+                part.clear();
             }
         }
     }
-    void set(const char *key, char *value)
-    {
 
+    void set(const string &key, const string &value)
+    {
         charData[key] = value;
     }
-    void set(const char *key, string value)
-    {
-        charData[key] = value.data();
-    }
-    void set(const char *key, int value)
+
+    void set(const string &key, int value)
     {
         intData[key] = value;
     }
-    void set(const char *key, float value)
+
+    void set(const string &key, float value)
     {
         floatData[key] = value;
     }
-    void set(const char *key, bool value)
+
+    void set(const string &key, bool value)
     {
         boolData[key] = value;
     }
-    string getString(const char *key)
+
+    string getString(const string &key) const
     {
-        return charData[key];
+        return charData.at(key);
     }
-    int getInt(const char *key)
+
+    int getInt(const string &key) const
     {
-        return intData[key];
+        return intData.at(key);
     }
-    float getFloat(const char *key)
+
+    float getFloat(const string &key) const
     {
-        return floatData[key];
+        return floatData.at(key);
     }
-    bool getBool(const char *key)
+
+    bool getBool(const string &key) const
     {
-        return boolData[key];
+        return boolData.at(key);
+    }
+
+    void remove(const string &key)
+    {
+        charData.erase(key);
+        intData.erase(key);
+        floatData.erase(key);
+        boolData.erase(key);
     }
 
 private:
-    map<const char *, char *> charData;
-    map<const char *, int> intData;
-    map<const char *, float> floatData;
-    map<const char *, bool> boolData;
+    unordered_map<string, string> charData;
+    unordered_map<string, int> intData;
+    unordered_map<string, float> floatData;
+    unordered_map<string, bool> boolData;
 };
